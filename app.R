@@ -20,7 +20,7 @@ ui <- dashboardPage(
   dashboardBody(
     column(4,
            numericInput("number1", "c(CBD) [mg/ml]: ", value = 0),
-           numericInput("number2", "V(CBD) [µl]: ", value = 0), 
+           numericInput("number2", "V(CBD) [ml]: ", value = 0), 
            
            actionButton("submitBtn", "Submit")
            
@@ -28,9 +28,10 @@ ui <- dashboardPage(
     column(8,
            radioButtons(
              "select1", "Select Dye:", choices = c("Atto550", "FITC"), selected = "Atto550"
-           ),
-           verbatimTextOutput("result")
-    )
+           )
+           
+    ),
+    verbatimTextOutput("result")
   )
 )
 
@@ -60,16 +61,23 @@ server <- function(input, output, session) {
       CBD <- CBD * 1000000
       CBD <- CBD * num2
       Dye <- CBD * excess
-      Dye <- (Dye * mw) / 1000000
+      Dye <- (Dye * mw) / 1000
       Dye <- (Dye/c) * 1000
       if (Dye > 1) {
-        output$result <- renderPrint(
-          cat("Add ", Dye, "µl dye.")
+        output$result <- renderPrint({
+          cat("Add ", Dye, "µl dye.")})
       } else if (Dye < 1) {
         Dye <- Dye * 10
-        output$result <- renderPrint(
-          cat("Concenctration of Protein is too high. Dilute Protein 10 fold and add ", Dye, "µl dye.")
-        )
+        if (Dye > 1) {
+          output$result <- renderPrint({
+            cat("Concenctration of Protein is too low. \nDilute Dye 10 fold and add ", Dye, "µl dye dilution.")})
+        } else if (Dye < 1) {
+          Dye <- Dye * 10
+          output$result <- renderPrint(
+            cat("Concenctration of Protein is too low. \nDilute Dye 100 fold and add ", Dye, "µl dye dilution..")
+          )
+          
+        }
         
       }
       
