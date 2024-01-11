@@ -90,5 +90,3 @@ server <- function(input, output, session) {
 
 #run the app
 shinyApp(ui, server)
-
-#nur um was zu ändern
